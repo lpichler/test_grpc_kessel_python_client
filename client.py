@@ -3,8 +3,8 @@ from __future__ import print_function
 import logging
 
 import grpc
-from grpc_client_kessel import relationships_pb2
-from grpc_client_kessel import relationships_pb2_grpc
+from rebac.v1 import relationships_pb2
+from rebac.v1 import relationships_pb2_grpc
 
 relation_api_gRPC_server = "localhost:9000"
 
