@@ -26,22 +26,24 @@ python  client.py
 ```
 output:
 ```
-b''
-End of CreateRelationshipsRequest
-Start of ReadRelationshipsRequest
-relationships {
-  object {
-    type: "group"
-    id: "bob_club"
-  }
-  relation: "member"
-  subject {
-    object {
-      type: "user"
-      id: "bob"
-    }
-  }
-}
+--Start of CreateTuples--
 
-End of ReadRelationshipsRequest
+--End of CreateTuples--
+
+--Start of ReadTuples--
+Resource ID: bob_club
+Resource Type: group
+Relation: member
+Subject Type: user
+Subject Type: bob
+--End of ReadTuples--
+
+--Start of Check request--
+allowed
+--End of Check request--
+
+--Start of LookupService--
+Subject ID: bob
+Resource Type: user
+--End of LookupService--
 ```
