@@ -3,46 +3,104 @@ from __future__ import print_function
 import logging
 
 import grpc
-from rebac.v1 import relationships_pb2
-from rebac.v1 import relationships_pb2_grpc
+from relations.v0 import relation_tuples_pb2 
+from relations.v0 import relation_tuples_pb2_grpc
+from relations.v0 import common_pb2
+
+from relations.v0 import check_pb2
+from relations.v0 import check_pb2_grpc
+
+from relations.v0 import lookup_pb2
+from relations.v0 import lookup_pb2_grpc
+
 
 relation_api_gRPC_server = "localhost:9000"
+CHECK_ALLOWED = 1
 
 
 def run():
+    print("--Start of CreateTuples--")
     with grpc.insecure_channel(relation_api_gRPC_server) as channel:
-        stub = relationships_pb2_grpc.RelationshipsStub(channel)
+        stub = relation_tuples_pb2_grpc.KesselTupleServiceStub(channel)
 
-        request = relationships_pb2.CreateRelationshipsRequest(
-            touch=True,
-            relationships=[
-                relationships_pb2.Relationship(
-                    object=relationships_pb2.ObjectReference(type="group", id="bob_club"),
+        request = relation_tuples_pb2.CreateTuplesRequest(
+            upsert=True,
+            tuples=[
+                common_pb2.Relationship(
+                    resource=common_pb2.ObjectReference(type=common_pb2.ObjectType(type="group"), id="bob_club"),
                     relation="member",
-                    subject=relationships_pb2.SubjectReference(
-                        object=relationships_pb2.ObjectReference(type="user", id="bob")
+                    subject=common_pb2.SubjectReference(
+                        subject=common_pb2.ObjectReference(type=common_pb2.ObjectType(type="user"), id="bob")
                     )
                 )
             ]
         )
 
-        response = stub.CreateRelationships(request)
-    print(response.SerializeToString())
-    print("End of CreateRelationshipsRequest")
+        responses = stub.CreateTuples(request)
+        print(responses)
 
-    print("Start of ReadRelationshipsRequest")
+    print("--End of CreateTuples--")
+    print()
+
+    print("--Start of ReadTuples--")
     with grpc.insecure_channel(relation_api_gRPC_server) as channel:
-        stub = relationships_pb2_grpc.RelationshipsStub(channel)
+        stub = relation_tuples_pb2_grpc.KesselTupleServiceStub(channel)
 
-        request = relationships_pb2.ReadRelationshipsRequest(filter=relationships_pb2.RelationshipFilter(
-            object_type="group",
-            object_id="bob_club",
-            relation="member"
-        ))
+        request = relation_tuples_pb2.ReadTuplesRequest(
+            filter=relation_tuples_pb2.RelationTupleFilter(
+                resource_type="group",
+                resource_id="bob_club",
+                relation="member"
+            )
+        )
 
-        response = stub.ReadRelationships(request)
-    print(response)
-    print("End of ReadRelationshipsRequest")
+        responses = stub.ReadTuples(request)
+        for r in responses:
+            print("Resource ID: %s" % r.tuple.resource.id)
+            print("Resource Type: %s" % r.tuple.resource.type.type)
+            print("Relation: %s" % r.tuple.relation)
+            print("Subject Type: %s" % r.tuple.subject.subject.type.type)
+            print("Subject Type: %s" % r.tuple.subject.subject.id)
+
+    print("--End of ReadTuples--")
+    print()
+
+    print("--Start of Check request--")
+    with grpc.insecure_channel(relation_api_gRPC_server) as channel:
+        stub = check_pb2_grpc.KesselCheckServiceStub(channel)
+        request = check_pb2.CheckRequest(
+            resource=common_pb2.ObjectReference(type=common_pb2.ObjectType(type="group"), id="bob_club"),
+            relation="member",
+            subject=common_pb2.SubjectReference(
+                subject=common_pb2.ObjectReference(type=common_pb2.ObjectType(type="user"), id="bob")
+            )
+        )
+
+        response = stub.Check(request)
+
+        if response.allowed == CHECK_ALLOWED:
+            print("allowed")
+        else:
+            print("NOT allowed")
+
+    print("--End of Check request--")
+    print()
+
+    print("--Start of LookupService--")
+    with grpc.insecure_channel(relation_api_gRPC_server) as channel:
+        stub = lookup_pb2_grpc.KesselLookupServiceStub(channel)
+        request = lookup_pb2.LookupSubjectsRequest(
+            resource=common_pb2.ObjectReference(type=common_pb2.ObjectType(type="group"), id="bob_club"),
+            relation="member",
+            subject_type=common_pb2.ObjectType(type="user"),
+        )
+        responses = stub.LookupSubjects(request)
+        for r in responses:
+            print("Subject ID: %s" % r.subject.subject.id)
+            print("Resource Type: %s" % r.subject.subject.type.type)
+
+        print("--End of LookupService--")
+        print()
 
 
 if __name__ == "__main__":
