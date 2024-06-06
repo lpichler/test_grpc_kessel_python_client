@@ -27,10 +27,10 @@ def run():
             upsert=True,
             tuples=[
                 common_pb2.Relationship(
-                    resource=common_pb2.ObjectReference(type=common_pb2.ObjectType(type="group"), id="bob_club"),
+                    resource=common_pb2.ObjectReference(type=common_pb2.ObjectType(name="group"), id="bob_club"),
                     relation="member",
                     subject=common_pb2.SubjectReference(
-                        subject=common_pb2.ObjectReference(type=common_pb2.ObjectType(type="user"), id="bob")
+                        subject=common_pb2.ObjectReference(type=common_pb2.ObjectType(name="user"), id="bob")
                     )
                 )
             ]
@@ -69,10 +69,10 @@ def run():
     with grpc.insecure_channel(relation_api_gRPC_server) as channel:
         stub = check_pb2_grpc.KesselCheckServiceStub(channel)
         request = check_pb2.CheckRequest(
-            resource=common_pb2.ObjectReference(type=common_pb2.ObjectType(type="group"), id="bob_club"),
+            resource=common_pb2.ObjectReference(type=common_pb2.ObjectType(name="group"), id="bob_club"),
             relation="member",
             subject=common_pb2.SubjectReference(
-                subject=common_pb2.ObjectReference(type=common_pb2.ObjectType(type="user"), id="bob")
+                subject=common_pb2.ObjectReference(type=common_pb2.ObjectType(name="user"), id="bob")
             )
         )
 
@@ -90,9 +90,9 @@ def run():
     with grpc.insecure_channel(relation_api_gRPC_server) as channel:
         stub = lookup_pb2_grpc.KesselLookupServiceStub(channel)
         request = lookup_pb2.LookupSubjectsRequest(
-            resource=common_pb2.ObjectReference(type=common_pb2.ObjectType(type="group"), id="bob_club"),
+            resource=common_pb2.ObjectReference(type=common_pb2.ObjectType(name="group"), id="bob_club"),
             relation="member",
-            subject_type=common_pb2.ObjectType(type="user"),
+            subject_type=common_pb2.ObjectType(name="user"),
         )
         responses = stub.LookupSubjects(request)
         for r in responses:
