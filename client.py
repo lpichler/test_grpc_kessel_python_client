@@ -57,9 +57,9 @@ def run():
         responses = stub.ReadTuples(request)
         for r in responses:
             print("Resource ID: %s" % r.tuple.resource.id)
-            print("Resource Type: %s" % r.tuple.resource.type.type)
+            print("Resource Type: %s" % r.tuple.resource.type.name)
             print("Relation: %s" % r.tuple.relation)
-            print("Subject Type: %s" % r.tuple.subject.subject.type.type)
+            print("Subject Type: %s" % r.tuple.subject.subject.type.name)
             print("Subject Type: %s" % r.tuple.subject.subject.id)
 
     print("--End of ReadTuples--")
@@ -97,7 +97,7 @@ def run():
         responses = stub.LookupSubjects(request)
         for r in responses:
             print("Subject ID: %s" % r.subject.subject.id)
-            print("Resource Type: %s" % r.subject.subject.type.type)
+            print("Resource Type: %s" % r.subject.subject.type.name)
 
         print("--End of LookupService--")
         print()
